@@ -4,90 +4,100 @@
 Clasificador de Temas para Comentarios de Campañas
 Personalizable por campaña/producto
 """
-
 import re
 from typing import Callable
 
-
 def create_topic_classifier() -> Callable[[str], str]:
     """
-    Retorna una función de clasificación de temas personalizada para esta campaña.
-    
-    Returns:
-        function: Función que toma un comentario (str) y retorna un tema (str)
-    
-    Usage:
-        classifier = create_topic_classifier()
-        tema = classifier("¿Dónde puedo comprar este producto?")
-        # tema = 'Preguntas sobre el Producto'
+    Retorna una función de clasificación personalizada para la campaña
+    Dog Yurt Navidad 2025 (Alta toxicidad / Enfoque en Influencer).
     """
     
     def classify_topic(comment: str) -> str:
-        """
-        Clasifica un comentario en un tema específico basado en patrones regex.
-        
-        Args:
-            comment: Texto del comentario a clasificar
-            
-        Returns:
-            str: Nombre del tema asignado
-        """
+        # Normalización básica
         comment_lower = str(comment).lower()
         
-        # CATEGORÍA 1: Preguntas sobre el Producto
+        # ---------------------------------------------------------
+        # NIVEL 1: ALTA PRIORIDAD (Detectar Toxicidad y Odio)
+        # ---------------------------------------------------------
+        
+        # CATEGORÍA 1: Discurso de Odio / Homofobia / Insultos de Género
+        # (Lamentablemente, este es el grueso de tu muestra actual)
         if re.search(
-            r'\bprecio\b|\bcu[aá]nto vale\b|d[oó]nde|c[oó]mo consigo|'
-            r'duda|pregunta|comprar|tiendas|disponible|sirve para|'
-            r'c[oó]mo se toma|tiene az[uú]car|valor',
+            r'maric[ao]|gay|rosc[oó]n|plumero|nena|niña|locota|'
+            r'amanerado|rosqueto|pendejo|bobo|cloncito|'
+            r'cag[aá]|mierda|verga|culo|asterisco|zoof[ií]lico|degenerado|'
+            r'gonorrea|hp|hijueputa|maricon',
             comment_lower
         ):
-            return 'Preguntas sobre el Producto'
-        
-        # CATEGORÍA 2: Comparación con Kéfir Casero/Artesanal
+            return 'Toxicidad y Ataques Personales'
+
+        # CATEGORÍA 2: Crítica al Estilo del Influencer / Presentador
+        # (Sin ser necesariamente insultos soeces, pero crítica a la forma de hablar/actuar)
         if re.search(
-            r'b[úu]lgaros|n[oó]dulos|en casa|casero|artesanal|'
-            r'preparo yo|vendo el cultivo|hecho por mi',
+            r'hablad[oi]|tono|voz|actuaci[oó]n|personaje|juanda|copia|'
+            r'cringe|fastidio|mamera|cansoneria|bobo|'
+            r'rolos?|bogotan|payaso|madur[oa]|que le pasa',
             comment_lower
         ):
-            return 'Comparación con Kéfir Casero/Artesanal'
-        
-        # CATEGORÍA 3: Ingredientes y Salud
+            return 'Crítica al Influencer/Estilo'
+
+        # ---------------------------------------------------------
+        # NIVEL 2: REACCIONES A LA MARCA Y TEMÁTICA
+        # ---------------------------------------------------------
+
+        # CATEGORÍA 3: Sentimiento Negativo hacia la Marca (Boicot/Rechazo)
         if re.search(
-            r'aditivos|almid[oó]n|preservantes|lactosa|microbiota|'
-            r'flora intestinal|saludable|bacterias|vivas|gastritis|'
-            r'colon|helicobacter|az[uú]car añadid[oa]s',
+            r'alpina|cliente fiel|no (te )?voy a comprar|te cagaste|'
+            r'que asco|comercial|propaganda|adi[oó]s|bye|'
+            r'presupuesto|marketing|publicidad',
             comment_lower
         ):
-            return 'Ingredientes y Salud'
-        
-        # CATEGORÍA 4: Competencia y Disponibilidad
+            return 'Rechazo a la Campaña'
+
+        # CATEGORÍA 4: Tema Religioso 
         if re.search(
-            r'pasco|\b[eé]xito\b|\bara\b|ol[ií]mpica|d1|'
-            r'copia de|no lo venden|no llega|no lo encuentro|no hay en',
+            r'biblia|dios|jes[uú]s|cristo|satan[aá]s|demonio|'
+            r'paganas?|idolatr[ií]a|iglesia|santo|esp[ií]ritu|'
+            r'navidad.*existe|nacimiento',
             comment_lower
         ):
-            return 'Competencia y Disponibilidad'
-        
-        # CATEGORÍA 5: Opinión General del Producto
+            return 'Discusión Religiosa'
+
+        # ---------------------------------------------------------
+        # NIVEL 3: INTERÉS GENUINO (Lo que realmente vende)
+        # ---------------------------------------------------------
+
+        # CATEGORÍA 5: Interés de Compra / Preguntas / Producto
         if re.search(
-            r'rico|bueno|excelente|gusta|mejor|delicioso|espectacular|'
-            r'encanta|s[úu]per|feo|horrible|mal[ií]simo|sabe a',
+            r'd[oó]nde.*venden|precio|regalo|participar|'
+            r'perros?|chuchos?|mascotas?|yurt|'
+            r'sirve para|gripe|pulmones|' # Específico del comentario sobre Ajonjo
+            r'quiero|comprar',
             comment_lower
         ):
-            return 'Opinión General del Producto'
-        
-        # CATEGORÍA 6: Fuera de Tema / No Relevante
+            return 'Interés en Producto/Mascotas'
+
+        # CATEGORÍA 6: Sentimiento Positivo / Apoyo
         if re.search(
-            r'am[eé]n|jajaja|receta|gracias|bendiciones',
+            r'lindo|bellezas?|gusta|amo|excelente|'
+            r'disfr[uú]ta|buen inicio|❤️|😍|🥰|'
+            r'buena energ[ií]a',
             comment_lower
-        ) or len(comment_lower.split()) < 3:
-            return 'Fuera de Tema / No Relevante'
+        ):
+            return 'Sentimiento Positivo'
+
+        # ---------------------------------------------------------
+        # NIVEL 4: RUIDO
+        # ---------------------------------------------------------
         
-        # CATEGORÍA DEFAULT: Otros
-        return 'Otros'
+        # CATEGORÍA 7: Ruido / Spam / Cortos
+        if len(comment_lower.split()) < 2:
+            return 'Ruido / Cortos'
+        
+        return 'Otros / Sin Clasificar'
     
     return classify_topic
-
 
 # ============================================================================
 # METADATA DE LA CAMPAÑA (OPCIONAL)
