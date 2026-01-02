@@ -14,8 +14,6 @@ def create_topic_classifier() -> Callable[[str], str]:
         # Normalización: minúsculas y quitar espacios extra
         comment_lower = str(comment).lower().strip()
         
-        if not comment_lower:
-            return 'Vacio'
 
         # ---------------------------------------------------------
         # NIVEL 1: ALTA PRIORIDAD (Toxicidad y Odio)
